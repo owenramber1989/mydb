@@ -1,5 +1,6 @@
 #include "buffer.h"
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #define COLUMN_USERNAME_SIZE 32

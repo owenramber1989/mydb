@@ -154,3 +154,10 @@ Table *new_table() {
     }
     return table;
 }
+
+void free_table(Table *table) {
+    for (int i = 0; table->pages[i]; i++) {
+        free(table->pages[i]);
+    }
+    free(table);
+}

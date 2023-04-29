@@ -126,8 +126,8 @@ ExecuteResult execute_select(Statement *statement, Table *table) {
 }
 void serialize_row(Row *src, void *dst) {
     memcpy(dst + ID_OFFSET, &(src->id), ID_SIZE);
-    memcpy(dst + USERNAME_OFFSET, &(src->username), USERNAME_SIZE);
-    memcpy(dst + EMAIL_OFFSET, &(src->email), EMAIL_SIZE);
+    strncpy(dst + USERNAME_OFFSET, src->username, USERNAME_SIZE);
+    strncpy(dst + EMAIL_OFFSET, src->email, EMAIL_SIZE);
 }
 
 void deserialize_row(void *src, Row *dst) {

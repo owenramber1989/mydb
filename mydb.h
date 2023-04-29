@@ -27,7 +27,11 @@ typedef enum {
     PREPARE_NEGATIVE_ID,
     PREPARE_UNRECOGNIZED_STATEMENT
 } PrepareResult;
-typedef enum { EXECUTE_SUCCESS, EXECUTE_TABLE_FULL } ExecuteResult;
+typedef enum {
+    EXECUTE_SUCCESS,
+    EXECUTE_DUPLICATE_KEY,
+    EXECUTE_TABLE_FULL
+} ExecuteResult;
 typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 
 typedef struct {
@@ -125,8 +129,9 @@ void close_db(Table *table);
 void pager_flush(Pager *, uint32_t);
 void cursor_advance(Cursor *);
 Cursor *table_head(Table *);
-Cursor *table_tail(Table *);
+Cursor *table_find(Table *, uint32_t);
 void *cursor_value(Cursor *);
+Cursor *leaf_node_find(Table *, uint32_t, uint32_t);
 
 uint32_t *leaf_node_num_cells(void *);
 void *leaf_node_ceil(void *, uint32_t);
@@ -134,4 +139,7 @@ void *leaf_node_value(void *, uint32_t);
 uint32_t *leaf_node_key(void *, uint32_t);
 void initialize_leaf_node(void *);
 void leaf_node_insert(Cursor *, uint32_t, Row *);
+
+NodeType get_node_type(void *);
+void set_node_type(void *, NodeType);
 #endif

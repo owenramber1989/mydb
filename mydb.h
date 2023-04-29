@@ -106,6 +106,7 @@ void read_input(InputBuffer *);
 
 void print_prompt();
 void print_constants();
+void print_leaf_node(void *);
 void close_input_buffer(InputBuffer *);
 
 MetaCommandResult exe_meta_command(InputBuffer *, Table *);

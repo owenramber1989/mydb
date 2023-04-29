@@ -52,4 +52,4 @@ Mkfile.old
 
 # mydb project related files 
 mydb
-*.mb
+*.db

@@ -1,6 +1,7 @@
 CC = gcc
-CFLAGS = -g 
-mydb: mydb.c buffer.c
+CFLAGS = -g
+src = $(wildcard *.c)
+mydb: $(src)
 	$(CC) $(CFLAGS) -o $@ $^ 
 clean:
 	rm -f mydb *.o

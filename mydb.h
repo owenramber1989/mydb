@@ -44,16 +44,18 @@ typedef struct {
 typedef struct {
     int file_descriptor;
     uint32_t file_length;
+    uint32_t num_pages;
     void *pages[TABLE_MAX_PAGE];
 } Pager;
 typedef struct {
     Pager *pager;
-    uint32_t num_rows;
+    uint32_t root_page_num;
 } Table;
 
 typedef struct {
     Table *table;
-    uint32_t row_num;
+    uint32_t page_num;
+    uint32_t cell_num;
     bool end_of_table;
 } Cursor;
 
@@ -62,7 +64,8 @@ typedef struct {
     Table *table;
     Cursor *cursor;
 } DB;
-#endif
+
+typedef enum { NODE_INTERNAL, NODE_LEAF } NodeType;
 
 const uint32_t ID_SIZE = sizeof_of_attribute(Row, id);
 const uint32_t USERNAME_SIZE = sizeof_of_attribute(Row, username);
@@ -72,11 +75,37 @@ const uint32_t USERNAME_OFFSET = ID_OFFSET + ID_SIZE;
 const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;
 const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
 
-const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
-const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGE;
+const uint32_t NODE_TYPE_SIZE = sizeof(uint8_t);
+const uint32_t NODE_TYPE_OFFSET = 0;
+const uint32_t IS_ROOT_SIZE = sizeof(uint8_t);
+const uint32_t IS_ROOT_OFFSET = NODE_TYPE_SIZE;
+const uint32_t PARENT_POINTER_SIZE = sizeof(uint32_t);
+const uint32_t PARENT_POINTER_OFFSET = IS_ROOT_OFFSET + IS_ROOT_SIZE;
+const uint32_t COMMON_NODE_HEADER_SIZE =
+    NODE_TYPE_SIZE + IS_ROOT_SIZE + PARENT_POINTER_SIZE;
+
+const uint32_t LEAF_NODE_NUM_CELLS_SIZE = sizeof(uint32_t);
+const uint32_t LEAF_NODE_NUM_CELLS_OFFSET = COMMON_NODE_HEADER_SIZE;
+const uint32_t LEAF_NODE_HEADER_SIZE =
+    COMMON_NODE_HEADER_SIZE + LEAF_NODE_NUM_CELLS_SIZE;
+
+/*
+ * Leaf Node Body Layout
+ */
+const uint32_t LEAF_NODE_KEY_SIZE = sizeof(uint32_t);
+const uint32_t LEAF_NODE_KEY_OFFSET = 0;
+const uint32_t LEAF_NODE_VALUE_SIZE = ROW_SIZE;
+const uint32_t LEAF_NODE_VALUE_OFFSET =
+    LEAF_NODE_KEY_OFFSET + LEAF_NODE_KEY_SIZE;
+const uint32_t LEAF_NODE_CELL_SIZE = LEAF_NODE_KEY_SIZE + LEAF_NODE_VALUE_SIZE;
+const uint32_t LEAF_NODE_SPACE_FOR_CELLS = PAGE_SIZE - LEAF_NODE_HEADER_SIZE;
+const uint32_t LEAF_NODE_MAX_CELLS =
+    LEAF_NODE_SPACE_FOR_CELLS / LEAF_NODE_CELL_SIZE;
+
 void read_input(InputBuffer *);
 
 void print_prompt();
+void print_constants();
 void close_input_buffer(InputBuffer *);
 
 MetaCommandResult exe_meta_command(InputBuffer *, Table *);
@@ -92,8 +121,16 @@ Table *access_db(const char *filename);
 PrepareResult prepare_insert(InputBuffer *, Statement *);
 Pager *access_pager(const char *filename);
 void close_db(Table *table);
-void pager_flush(Pager *, uint32_t, uint32_t);
+void pager_flush(Pager *, uint32_t);
 void cursor_advance(Cursor *);
 Cursor *table_head(Table *);
 Cursor *table_tail(Table *);
 void *cursor_value(Cursor *);
+
+uint32_t *leaf_node_num_cells(void *);
+void *leaf_node_ceil(void *, uint32_t);
+void *leaf_node_value(void *, uint32_t);
+uint32_t *leaf_node_key(void *, uint32_t);
+void initialize_leaf_node(void *);
+void leaf_node_insert(Cursor *, uint32_t, Row *);
+#endif

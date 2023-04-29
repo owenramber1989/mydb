@@ -49,4 +49,7 @@
 modules.order
 Module.symvers
 Mkfile.old
+
+# mydb project related files 
 mydb
+*.mb

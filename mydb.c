@@ -234,7 +234,7 @@ void close_db(Table *table) {
         if (pager->pages[i] == NULL) {
             continue;
         }
-        msync(pager->pages[i], PAGE_SIZE, MS_SYNC);
+        pager_flush(pager, i, PAGE_SIZE);
         free(pager->pages[i]);
         pager->pages[i] = NULL;
     }
@@ -242,7 +242,7 @@ void close_db(Table *table) {
     if (num_additional_rows > 0) {
         uint32_t page_num = num_full_pages;
         if (pager->pages[page_num] != NULL) {
-            msync(pager->pages[page_num], PAGE_SIZE, MS_SYNC);
+            pager_flush(pager, page_num, num_additional_rows * ROW_SIZE);
             free(pager->pages[page_num]);
             pager->pages[page_num] = NULL;
         }

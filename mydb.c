@@ -266,9 +266,12 @@ void close_db(Table *table) {
         printf("Error closing db file.\n");
         exit(EXIT_FAILURE);
     }
-    for (uint32_t i = 0; pager->pages[i]; i++) {
-        free(pager->pages[i]);
-        pager->pages[i] = NULL;
+    for (uint32_t i = 0; i < TABLE_MAX_PAGE; i++) {
+        void *page = pager->pages[i];
+        if (page) {
+            free(page);
+            pager->pages[i] = NULL;
+        }
     }
     free(pager);
     free(table);

@@ -150,7 +150,7 @@ Cursor *table_head(Table *);
 Cursor *table_find(Table *, uint32_t);
 void *cursor_value(Cursor *);
 Cursor *leaf_node_find(Table *, uint32_t, uint32_t);
-
+Cursor *internal_node_find(Table *, uint32_t, uint32_t);
 uint32_t *leaf_node_num_cells(void *);
 void *leaf_node_ceil(void *, uint32_t);
 void *leaf_node_value(void *, uint32_t);
